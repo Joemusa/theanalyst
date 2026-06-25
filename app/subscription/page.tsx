@@ -24,7 +24,7 @@ export default function SubscriptionPage() {
     const fields: Record<string, string> = {
       merchant_id: '10000100',
       merchant_key: '46f0cd694581a',
-      return_url: `${appUrl}/dashboard?payment=success`,
+      return_url: `${appUrl}/payment/success?plan=${plan}`,
       cancel_url: `${appUrl}/subscription?payment=cancelled`,
       notify_url: `${appUrl}/api/payfast/itn`,
       name_first: user.email?.split('@')[0] ?? 'User',

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
   const [surveys, setSurveys] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -12,25 +13,19 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       const { data: { session } } = await supabase.auth.getSession()
-
-      if (!session) {
-        window.location.href = '/login'
-        return
-      }
+      if (!session) { window.location.href = '/login'; return }
 
       setUser(session.user)
 
-      const { data: surveysData } = await supabase
-        .from('surveys')
-        .select('id, title, status, response_count, created_at')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(5)
+      const [{ data: profileData }, { data: surveysData }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', session.user.id).single(),
+        supabase.from('surveys').select('id, title, status, response_count, created_at').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
+      ])
 
+      setProfile(profileData)
       setSurveys(surveysData ?? [])
       setLoading(false)
     }
-
     loadData()
   }, [])
 
@@ -48,7 +43,26 @@ export default function DashboardPage() {
     </div>
   )
 
-  const firstName = user?.email?.split('@')[0] ?? 'there'
+  const firstName = profile?.full_name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there'
+  const plan = profile?.plan ?? 'trial'
+  const trialDaysLeft = profile?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(profile.trial_ends_at).getTime() - Date.now()) / 86400000))
+    : 14
+  const totalResponses = surveys.reduce((s: number, r: any) => s + (r.response_count ?? 0), 0)
+
+  const planColors: Record<string, string> = {
+    trial: '#F59E0B',
+    starter: '#10B981',
+    professional: '#4F46E5',
+    enterprise: '#7C3AED',
+  }
+
+  const planLabels: Record<string, string> = {
+    trial: `Free Trial — ${trialDaysLeft} days remaining`,
+    starter: 'Starter Plan — Active ✓',
+    professional: 'Professional Plan — Active ✓',
+    enterprise: 'Enterprise Plan — Active ✓',
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F8FA' }}>
@@ -56,34 +70,36 @@ export default function DashboardPage() {
       <div style={{ background: 'white', borderBottom: '1px solid #E4E7EE', padding: '0 32px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ fontWeight: 700, fontSize: 18 }}>📊 InsightHub AI</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ background: planColors[plan] + '20', color: planColors[plan], fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 100, textTransform: 'capitalize' }}>{plan}</span>
           <span style={{ fontSize: 13, color: '#7C8494' }}>{user?.email}</span>
-          <button onClick={handleSignOut}
-            style={{ fontSize: 13, color: '#4F46E5', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>
-            Sign out
-          </button>
+          <button onClick={handleSignOut} style={{ fontSize: 13, color: '#4F46E5', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Sign out</button>
         </div>
       </div>
 
       <div style={{ padding: 32 }}>
-        {/* Trial banner */}
-        <div style={{ background: 'linear-gradient(90deg, #EEF2FF, #F5F3FF)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: 12, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-          <span style={{ fontSize: 20 }}>🎁</span>
+        {/* Plan banner */}
+        <div style={{ background: plan === 'trial' ? 'linear-gradient(90deg, #EEF2FF, #F5F3FF)' : 'linear-gradient(90deg, #ECFDF5, #F0FDF4)', border: `1px solid ${planColors[plan]}30`, borderRadius: 12, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+          <span style={{ fontSize: 20 }}>{plan === 'trial' ? '🎁' : '⚡'}</span>
           <div style={{ flex: 1 }}>
-            <strong style={{ fontSize: 14 }}>Free Trial — 14 days remaining</strong>
-            <p style={{ fontSize: 12, color: '#7C8494', margin: 0 }}>Upgrade to Professional to unlock AI segmentation, forecasting, and unlimited surveys</p>
+            <strong style={{ fontSize: 14, color: planColors[plan] }}>{planLabels[plan]}</strong>
+            {plan === 'trial' && <p style={{ fontSize: 12, color: '#7C8494', margin: 0 }}>Upgrade to Professional to unlock AI segmentation, forecasting, and unlimited surveys</p>}
+            {plan === 'starter' && <p style={{ fontSize: 12, color: '#7C8494', margin: 0 }}>5 surveys · 500 responses/month · Basic AI summaries</p>}
+            {plan === 'professional' && <p style={{ fontSize: 12, color: '#7C8494', margin: 0 }}>Unlimited surveys · Full AI analytics · All features unlocked</p>}
           </div>
-          <a href="/subscription" style={{ background: 'linear-gradient(135deg, #7C3AED, #4F46E5)', color: 'white', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Upgrade ⚡</a>
+          {plan !== 'professional' && plan !== 'enterprise' && (
+            <a href="/subscription" style={{ background: 'linear-gradient(135deg, #7C3AED, #4F46E5)', color: 'white', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+              {plan === 'trial' ? 'Upgrade ⚡' : 'Upgrade to Pro ⚡'}
+            </a>
+          )}
         </div>
 
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>
-          Good morning, {firstName} 👋
-        </h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>Good morning, {firstName} 👋</h1>
         <p style={{ color: '#7C8494', marginBottom: 28 }}>Here&apos;s what&apos;s happening with your surveys</p>
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
           {[
-            { label: 'Total Responses', value: surveys.reduce((s: number, r: any) => s + (r.response_count ?? 0), 0), color: '#4F46E5' },
+            { label: 'Total Responses', value: totalResponses, color: '#4F46E5' },
             { label: 'Active Surveys', value: surveys.filter((s: any) => s.status === 'active').length, color: '#10B981' },
             { label: 'Positive Sentiment', value: '0%', color: '#F59E0B' },
             { label: 'NPS Score', value: '+0', color: '#8B5CF6' },
@@ -107,9 +123,7 @@ export default function DashboardPage() {
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{survey.title}</div>
                 <div style={{ fontSize: 12, color: '#7C8494', marginTop: 2 }}>
                   {new Date(survey.created_at).toLocaleDateString('en-ZA')} ·{' '}
-                  <span style={{ color: survey.status === 'active' ? '#10B981' : '#7C8494', fontWeight: 600 }}>
-                    {survey.status}
-                  </span>
+                  <span style={{ color: survey.status === 'active' ? '#10B981' : '#7C8494', fontWeight: 600 }}>{survey.status}</span>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>

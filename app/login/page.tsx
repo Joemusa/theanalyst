@@ -2,14 +2,12 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
   const supabase = createClient()
 
   async function handleLogin(e: React.FormEvent) {
@@ -17,8 +15,12 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError(error.message); setLoading(false) }
-    else router.push('/dashboard')
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
@@ -64,7 +66,7 @@ export default function LoginPage() {
               style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #E4E7EE', borderRadius: 8, fontSize: 14, outline: 'none', fontFamily: 'inherit' }} />
           </div>
           <button type="submit" disabled={loading}
-            style={{ width: '100%', padding: 13, background: '#4F46E5', color: 'white', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ width: '100%', padding: 13, background: loading ? '#818CF8' : '#4F46E5', color: 'white', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
             {loading ? 'Signing in...' : 'Sign in to dashboard'}
           </button>
         </form>

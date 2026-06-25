@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       return new Response('OK - not complete', { status: 200 })
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createAdminClient()
     const email = data.custom_str3
     const plan  = data.custom_str1  // starter | professional
 

@@ -54,6 +54,9 @@ export default function SubscriptionPage() {
   }
 
   const plans = [
+    { key: "test", name: "Test Plan", price: "R1", amount: "1.00", desc: "For testing PayFast live payments only", color: "#10B981", recommended: false,
+      features: ["Test payment only", "Will be upgraded to Starter after test", "Delete after testing"],
+      locked: [] },
     { key: 'starter', name: 'Starter', price: 'R299', amount: '299.00', desc: 'Perfect for small businesses', color: '#4F46E5', recommended: false,
       features: ['5 surveys','500 responses/month','Basic AI summaries','PDF reports','Email & WhatsApp distribution'],
       locked: ['Market Segmentation','Forecasting','Churn Prediction'] },

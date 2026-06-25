@@ -85,7 +85,7 @@ export default function SubscriptionPage() {
               <div style={{marginBottom:16}}><span style={{fontSize:36,fontWeight:800}}>{plan.price}</span>{plan.price!=='Custom'&&<span style={{fontSize:14,color:'#7C8494'}}>/month</span>}</div>
               <div style={{fontSize:13,color:'#7C8494',marginBottom:24}}>{plan.desc}</div>
               {plan.key==='enterprise'
-                ? <button onClick={()=>alert('Contact us at hello@insighthub.ai')} style={{width:'100%',padding:'11px',background:'#F7F8FA',color:'#0D0F14',border:'1.5px solid #E4E7EE',borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer',marginBottom:24}}>Contact Sales</button>
+                ? <button onClick={() => window.location.href = 'mailto:sales@rentabuka.co.za?subject=InsightHub AI Enterprise Enquiry'} style={{width:'100%',padding:'11px',background:'#F7F8FA',color:'#0D0F14',border:'1.5px solid #E4E7EE',borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer',marginBottom:24}}>Contact Sales</button>
                 : <button onClick={()=>handleUpgrade(plan.key,plan.amount)} disabled={loading===plan.key} style={{width:'100%',padding:'11px',background:loading===plan.key?'#818CF8':plan.color,color:'white',border:'none',borderRadius:8,fontSize:14,fontWeight:600,cursor:loading===plan.key?'not-allowed':'pointer',marginBottom:24}}>{loading===plan.key?'Redirecting...':`Pay ${plan.price}/month`}</button>
               }
               <div style={{display:'flex',flexDirection:'column',gap:8}}>

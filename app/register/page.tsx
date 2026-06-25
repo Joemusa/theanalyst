@@ -22,6 +22,12 @@ export default function RegisterPage() {
         emailRedirectTo: `https://theanalyst-one.vercel.app/auth/callback`,
       },
     })
+    
+    // Track signup conversion
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead')
+    }
+    setSuccess(true)
     if (error) { setError(error.message); setLoading(false) }
     else setSuccess(true)
   }

@@ -12,7 +12,7 @@ export default function SubscriptionPage() {
     if (!user) { window.location.href = '/login'; return }
 
     const paymentId = 'INS-' + Date.now().toString(36).toUpperCase()
-    const appUrl = 'https://theanalyst-one.vercel.app'
+    const appUrl = 'https://insightiq.co.za'
     const merchantId = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID || '10000100'
     const merchantKey = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_KEY || '46f0cd694581a'
     const isSandbox = process.env.NEXT_PUBLIC_PAYFAST_SANDBOX !== 'false'

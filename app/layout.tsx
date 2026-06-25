@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'InsightIQ — AI Survey Analytics for South African Businesses',
-  description: 'Turn survey responses into actionable business insights using AI. Sentiment analysis, NPS tracking, forecasting and more. 14-day free trial.',
+  description: 'Turn survey responses into actionable insights using AI. 14-day free trial.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

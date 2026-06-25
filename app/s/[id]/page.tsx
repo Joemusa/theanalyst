@@ -70,8 +70,8 @@ export default function PublicSurveyPage({ params }: { params: { id: string } })
     const ratingQ = questions.find(q => q.type === 'rating')
     const rating = ratingQ ? parseInt(answers[ratingQ.id]) : null
     let sentiment = 'neutral'
-    if (rating >= 4 || npsScore >= 9) sentiment = 'positive'
-    else if (rating <= 2 || npsScore <= 6) sentiment = 'negative'
+    if ((rating !== null && rating >= 4) || (npsScore !== null && npsScore >= 9)) sentiment = 'positive'
+    else if ((rating !== null && rating <= 2) || (npsScore !== null && npsScore <= 6)) sentiment = 'negative'
 
     const { error } = await supabase.from('responses').insert({
       survey_id: params.id,

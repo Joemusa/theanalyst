@@ -23,6 +23,8 @@ export default function NewSurveyPage() {
   const [selectedId, setSelectedId] = useState(1)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [previewing, setPreviewing] = useState(false)
+  const [ratings, setRatings] = useState<Record<number, number>>({})
   const supabase = createClient()
 
   function addQuestion(type: string) {
@@ -50,28 +52,25 @@ export default function NewSurveyPage() {
     setSelectedId(remaining[0].id)
   }
 
+  function selectRating(questionId: number, value: number) {
+    setRatings(prev => ({ ...prev, [questionId]: value }))
+  }
+
   async function saveSurvey(status: 'draft' | 'active') {
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { window.location.href = '/login'; return }
     const { error } = await supabase.from('surveys').insert({
-      user_id: session.user.id,
-      title,
-      description,
-      status,
-      questions,
+      user_id: session.user.id, title, description, status, questions,
       published_at: status === 'active' ? new Date().toISOString() : null,
     })
     setSaving(false)
-    if (!error) {
-      setSaved(true)
-      setTimeout(() => window.location.href = '/dashboard', 1500)
-    } else {
-      alert('Error saving: ' + error.message)
-    }
+    if (!error) { setSaved(true); setTimeout(() => window.location.href = '/dashboard', 1500) }
+    else alert('Error saving: ' + error.message)
   }
 
   const selected = questions.find(q => q.id === selectedId)
+  const accentColor = '#4F46E5'
 
   if (saved) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F7F8FA'}}>
@@ -83,6 +82,83 @@ export default function NewSurveyPage() {
     </div>
   )
 
+  // PREVIEW MODE
+  if (previewing) return (
+    <div style={{minHeight:'100vh',background:'#F0F2F5'}}>
+      <div style={{background:'white',borderBottom:'1px solid #E4E7EE',padding:'0 24px',height:52,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span style={{background:'#ECFDF5',color:'#065F46',fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:100}}>Preview Mode</span>
+          <span style={{fontSize:13,color:'#7C8494'}}>This is how respondents see your survey</span>
+        </div>
+        <button onClick={() => setPreviewing(false)} style={{padding:'7px 16px',background:'#4F46E5',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+          ← Back to Editor
+        </button>
+      </div>
+      <div style={{maxWidth:680,margin:'32px auto',padding:'0 16px'}}>
+        <div style={{background:accentColor,borderRadius:'12px 12px 0 0',padding:32,color:'white'}}>
+          <h2 style={{fontSize:24,fontWeight:800,marginBottom:6}}>{title || 'Untitled Survey'}</h2>
+          <p style={{fontSize:14,opacity:0.8}}>{description || 'Help us serve you better'}</p>
+          <div style={{marginTop:16,background:'rgba(255,255,255,0.2)',height:4,borderRadius:2}}>
+            <div style={{width:'10%',height:'100%',background:'rgba(255,255,255,0.8)',borderRadius:2}}></div>
+          </div>
+        </div>
+        <div style={{background:'white',borderRadius:'0 0 12px 12px',padding:24,display:'flex',flexDirection:'column',gap:16}}>
+          {questions.map((q, idx) => (
+            <div key={q.id} style={{background:'white',border:'1.5px solid #E4E7EE',borderRadius:12,padding:20}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+                <span style={{background:accentColor,color:'white',width:24,height:24,borderRadius:'50%',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{idx+1}</span>
+                <span style={{fontSize:14,fontWeight:600,color:'#0D0F14'}}>{q.text}</span>
+                {q.required&&<span style={{color:'#EF4444',fontSize:12}}>*</span>}
+              </div>
+              {q.type==='rating'&&<>
+                <div style={{display:'flex',gap:8}}>
+                  {[1,2,3,4,5].map(n=>(
+                    <button key={n} onClick={()=>selectRating(q.id,n)}
+                      style={{width:48,height:48,border:'1.5px solid',borderColor:ratings[q.id]===n?accentColor:'#E4E7EE',borderRadius:8,background:ratings[q.id]===n?accentColor:'white',color:ratings[q.id]===n?'white':'#0D0F14',fontSize:15,fontWeight:700,cursor:'pointer',transition:'all 0.15s',fontFamily:'inherit'}}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:'#7C8494'}}>
+                  <span>Very poor</span><span>Excellent</span>
+                </div>
+              </>}
+              {q.type==='nps'&&<>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                  {[0,1,2,3,4,5,6,7,8,9,10].map(n=>(
+                    <button key={n} onClick={()=>selectRating(q.id,n)}
+                      style={{width:44,height:44,border:'1.5px solid',borderColor:ratings[q.id]===n?accentColor:'#E4E7EE',borderRadius:8,background:ratings[q.id]===n?accentColor:'white',color:ratings[q.id]===n?'white':'#0D0F14',fontSize:13,fontWeight:700,cursor:'pointer',transition:'all 0.15s',fontFamily:'inherit'}}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:'#7C8494'}}>
+                  <span>Not at all likely</span><span>Extremely likely</span>
+                </div>
+              </>}
+              {q.type==='single'&&q.choices.map((c,i)=>(
+                <label key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',border:'1.5px solid #E4E7EE',borderRadius:8,cursor:'pointer',marginBottom:6,fontSize:14,color:'#3A3F4B'}}>
+                  <input type="radio" name={`q${q.id}`} style={{accentColor}}/> {c}
+                </label>
+              ))}
+              {q.type==='multiple'&&q.choices.map((c,i)=>(
+                <label key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',border:'1.5px solid #E4E7EE',borderRadius:8,cursor:'pointer',marginBottom:6,fontSize:14,color:'#3A3F4B'}}>
+                  <input type="checkbox" style={{accentColor}}/> {c}
+                </label>
+              ))}
+              {q.type==='text'&&<input type="text" placeholder="Your answer..." style={{width:'100%',padding:'10px 14px',border:'1.5px solid #E4E7EE',borderRadius:8,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>}
+              {q.type==='longtext'&&<textarea placeholder="Your answer..." rows={3} style={{width:'100%',padding:'10px 14px',border:'1.5px solid #E4E7EE',borderRadius:8,fontSize:14,fontFamily:'inherit',resize:'vertical',outline:'none',boxSizing:'border-box'}}/>}
+            </div>
+          ))}
+          <button style={{width:'100%',padding:14,background:accentColor,color:'white',border:'none',borderRadius:8,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+            Submit Survey
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  // BUILDER MODE
   return (
     <div style={{height:'100vh',background:'#F7F8FA',display:'flex',flexDirection:'column',overflow:'hidden'}}>
       <div style={{background:'white',borderBottom:'1px solid #E4E7EE',padding:'0 24px',height:56,display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
@@ -90,9 +166,13 @@ export default function NewSurveyPage() {
           <a href="/dashboard" style={{color:'#7C8494',textDecoration:'none',fontSize:13}}>← Dashboard</a>
           <span style={{color:'#E4E7EE'}}>/</span>
           <input value={title} onChange={e => setTitle(e.target.value)}
-            style={{border:'none',outline:'none',fontSize:15,fontWeight:700,color:'#0D0F14',background:'transparent',minWidth:200}}/>
+            style={{border:'none',outline:'none',fontSize:15,fontWeight:700,color:'#0D0F14',background:'transparent',minWidth:200,fontFamily:'inherit'}}/>
         </div>
         <div style={{display:'flex',gap:8}}>
+          <button onClick={() => setPreviewing(true)}
+            style={{padding:'7px 16px',background:'white',border:'1px solid #E4E7EE',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+            👁 Preview
+          </button>
           <button onClick={() => saveSurvey('draft')} disabled={saving}
             style={{padding:'7px 16px',background:'white',border:'1px solid #E4E7EE',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
             {saving ? 'Saving...' : '💾 Save Draft'}
@@ -135,8 +215,28 @@ export default function NewSurveyPage() {
                   <span style={{fontSize:11,background:'#EEF2FF',color:'#4F46E5',padding:'2px 8px',borderRadius:100,fontWeight:600,whiteSpace:'nowrap'}}>{QUESTION_TYPES.find(t=>t.key===q.type)?.label}</span>
                   <button onClick={e=>{e.stopPropagation();deleteQuestion(q.id)}} style={{background:'none',border:'none',cursor:'pointer',color:'#7C8494',fontSize:20,lineHeight:1,padding:'0 4px'}}>×</button>
                 </div>
-                {q.type==='rating'&&<div style={{display:'flex',gap:6}}>{[1,2,3,4,5].map(n=><button key={n} onClick={e=>{e.stopPropagation();e.currentTarget.parentElement?.querySelectorAll('button').forEach(b=>{b.style.background='white';b.style.color='#0D0F14';b.style.borderColor='#E4E7EE'});e.currentTarget.style.background='#4F46E5';e.currentTarget.style.color='white';e.currentTarget.style.borderColor='#4F46E5'}} style={{width:40,height:40,border:'1.5px solid #E4E7EE',borderRadius:8,background:'white',fontSize:14,fontWeight:600,cursor:'pointer',transition:'all 0.1s'}}>{n}</button>)}</div>}
-                {q.type==='nps'&&<div style={{display:'flex',gap:3,flexWrap:'wrap'}}>{[0,1,2,3,4,5,6,7,8,9,10].map(n=><button key={n} style={{width:36,height:36,border:'1.5px solid #E4E7EE',borderRadius:6,background:'white',fontSize:12,fontWeight:600,cursor:'pointer'}}>{n}</button>)}</div>}
+                {q.type==='rating'&&<>
+                  <div style={{display:'flex',gap:6}}>
+                    {[1,2,3,4,5].map(n=>(
+                      <button key={n} onClick={e=>{e.stopPropagation();selectRating(q.id,n)}}
+                        style={{width:40,height:40,border:'1.5px solid',borderColor:ratings[q.id]===n?'#4F46E5':'#E4E7EE',borderRadius:8,background:ratings[q.id]===n?'#4F46E5':'white',color:ratings[q.id]===n?'white':'#0D0F14',fontSize:14,fontWeight:600,cursor:'pointer',transition:'all 0.1s',fontFamily:'inherit'}}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:'#7C8494'}}><span>Very poor</span><span>Excellent</span></div>
+                </>}
+                {q.type==='nps'&&<>
+                  <div style={{display:'flex',gap:3,flexWrap:'wrap'}}>
+                    {[0,1,2,3,4,5,6,7,8,9,10].map(n=>(
+                      <button key={n} onClick={e=>{e.stopPropagation();selectRating(q.id,n)}}
+                        style={{width:36,height:36,border:'1.5px solid',borderColor:ratings[q.id]===n?'#4F46E5':'#E4E7EE',borderRadius:6,background:ratings[q.id]===n?'#4F46E5':'white',color:ratings[q.id]===n?'white':'#0D0F14',fontSize:12,fontWeight:600,cursor:'pointer',transition:'all 0.1s',fontFamily:'inherit'}}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:'#7C8494'}}><span>Not at all likely</span><span>Extremely likely</span></div>
+                </>}
                 {(q.type==='single'||q.type==='multiple')&&q.choices.map((c,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 0',borderBottom:'1px solid #F0F2F7'}}><input type={q.type==='single'?'radio':'checkbox'} readOnly/><span style={{fontSize:13}}>{c}</span></div>)}
                 {q.type==='text'&&<input readOnly placeholder="Short answer..." style={{width:'100%',padding:'8px 12px',border:'1px solid #E4E7EE',borderRadius:6,fontSize:13,background:'#F7F8FA'}}/>}
                 {q.type==='longtext'&&<textarea readOnly placeholder="Long answer..." rows={3} style={{width:'100%',padding:'8px 12px',border:'1px solid #E4E7EE',borderRadius:6,fontSize:13,background:'#F7F8FA',resize:'none'}}/>}

@@ -1,12 +1,16 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function Sidebar({ active }: { active: string }) {
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => { setMounted(true) }, [])
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    if (typeof window !== 'undefined') window.location.href = '/login'
   }
 
   const navItems = [
@@ -34,7 +38,14 @@ export default function Sidebar({ active }: { active: string }) {
       {/* Logo */}
       <div style={{padding:'20px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
         <a href="/dashboard" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none'}}>
-          <img src="/icon.svg" alt="InsightIQ" style={{width:34,height:34,borderRadius:8}}/>
+          <svg width="34" height="34" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="14" fill="#4F46E5"/>
+            <rect x="12" y="42" width="8" height="14" rx="2" fill="rgba(255,255,255,0.35)"/>
+            <rect x="26" y="32" width="8" height="24" rx="2" fill="rgba(255,255,255,0.65)"/>
+            <rect x="40" y="20" width="8" height="36" rx="2" fill="rgba(255,255,255,0.95)"/>
+            <circle cx="54" cy="14" r="7" fill="#10B981"/>
+            <circle cx="54" cy="14" r="3.5" fill="white"/>
+          </svg>
           <div>
             <div style={{color:'white',fontWeight:800,fontSize:15,fontFamily:'system-ui',lineHeight:1.2}}>InsightIQ</div>
             <div style={{color:'rgba(255,255,255,0.4)',fontSize:9,fontFamily:'system-ui',letterSpacing:'0.03em'}}>by Rentabuka Solutions</div>

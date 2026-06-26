@@ -99,9 +99,9 @@ export default function DashboardPage() {
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:28}}>
           {[
             { icon:'📋', label:'New Survey', href:'/surveys/new', color:'#4F46E5' },
-            { icon:'📊', label:'View Responses', href:'#surveys', color:'#10B981' },
+            { icon:'📊', label:'View Responses', href: surveys[0] ? `/surveys/${surveys[0].id}/responses` : '#', color:'#10B981' },
             { icon:'💳', label:'Upgrade Plan', href:'/subscription', color:'#7C3AED' },
-            { icon:'📤', label:'Share Survey', href:'#surveys', color:'#F59E0B' },
+            { icon:'📤', label:'Share Survey', href: surveys[0] ? `https://insightiq.co.za/s/${surveys[0].id}` : '#', color:'#F59E0B' },
           ].map(({ icon, label, href, color }) => (
             <a key={label} href={href}
               style={{background:'white',border:'1px solid #E4E7EE',borderRadius:10,padding:'14px 16px',textDecoration:'none',display:'flex',alignItems:'center',gap:10,transition:'border-color 0.15s'}}>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                   style={{padding:'7px 14px',background:'#F7F8FA',border:'1px solid #E4E7EE',color:'#3A3F4B',borderRadius:8,textDecoration:'none',fontSize:12,fontWeight:600,fontFamily:'system-ui',whiteSpace:'nowrap'}}>
                   📤 Share
                 </a>
-                <a href={`/surveys/new`}
+                <a href={`/surveys/${survey.id}/new`}
                   style={{padding:'7px 14px',background:'#F7F8FA',border:'1px solid #E4E7EE',color:'#3A3F4B',borderRadius:8,textDecoration:'none',fontSize:12,fontWeight:600,fontFamily:'system-ui'}}>
                   ✏️ Edit
                 </a>

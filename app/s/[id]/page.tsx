@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 type Question = { id: number; type: string; text: string; required: boolean; choices: string[] }
 
-export default function PublicSurveyPage({ params }: { params: { id: string } }) {
+export default function PublicSurveyPage({ params }: { params: { id: string } }) { {
   const [survey, setSurvey] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -15,14 +15,14 @@ export default function PublicSurveyPage({ params }: { params: { id: string } })
   const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   useEffect(() => {
-    fetch(`${SUPABASE_URL}/rest/v1/surveys?id=eq.${params.id}&status=eq.active&select=*`, {
+    fetch(`${SUPABASE_URL}/rest/v1/surveys?id=eq.${params.id || window.location.pathname.split("/").pop()}&status=eq.active&select=*`, {
       headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` }
     }).then(r => r.json()).then(data => {
       if (!data || data.length === 0) setNotFound(true)
       else setSurvey(data[0])
       setLoading(false)
     }).catch(() => { setNotFound(true); setLoading(false) })
-  }, [params.id])
+  }, [params.id || window.location.pathname.split("/").pop()])
 
   function setAnswer(qId: number, value: any) {
     setAnswers(p => ({ ...p, [qId]: value }))
@@ -56,7 +56,7 @@ export default function PublicSurveyPage({ params }: { params: { id: string } })
     const res = await fetch(`${SUPABASE_URL}/rest/v1/responses`, {
       method: 'POST',
       headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ survey_id: params.id, answers, nps_score: nps, sentiment, device_type: /Mobile/i.test(navigator.userAgent) ? 'mobile' : 'desktop', completed: true })
+      body: JSON.stringify({ survey_id: params.id || window.location.pathname.split("/").pop(), answers, nps_score: nps, sentiment, device_type: /Mobile/i.test(navigator.userAgent) ? 'mobile' : 'desktop', completed: true })
     })
     setSubmitting(false)
     if (res.ok) setSubmitted(true)

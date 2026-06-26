@@ -6,8 +6,8 @@ import MetaPixel from '@/app/components/MetaPixel'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'InsightIQ — AI Survey Analytics for South African Businesses',
-  description: 'Turn survey responses into actionable insights using AI. 14-day free trial.',
+  title: 'InsightIQ — AI Survey Analytics',
+  description: 'Turn survey responses into actionable business insights using AI. Sentiment analysis, NPS tracking, forecasting and more. 14-day free trial. Powered by Rentabuka Solutions.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

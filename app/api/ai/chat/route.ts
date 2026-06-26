@@ -29,7 +29,7 @@ NPS scores: ${responses?.filter(r => r.nps_score !== null).map(r => r.nps_score)
     }
   }
 
-  const systemPrompt = `You are InsightHub AI, an expert business analytics assistant for a South African survey platform.
+  const systemPrompt = `You are InsightIQ, an expert business analytics assistant for a South African survey platform.
 ${surveyContext}
 Provide concise, actionable insights in plain English. Use bold for key numbers. Keep responses under 200 words unless asked for more. Be direct and confident — this is for an executive audience.`
 

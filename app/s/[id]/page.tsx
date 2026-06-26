@@ -117,7 +117,7 @@ export default function PublicSurveyPage({ params }: { params: { id: string } })
         <h2 style={{fontFamily:'system-ui,sans-serif',fontSize:24,fontWeight:800,marginBottom:8,color:'#0D0F14'}}>Thank you!</h2>
         <p style={{color:'#7C8494',lineHeight:1.6,marginBottom:24}}>Your response has been submitted successfully.</p>
         <div style={{background:'#F7F8FA',borderRadius:10,padding:'12px 20px',fontSize:13,color:'#7C8494'}}>
-          Powered by <strong style={{color:'#4F46E5'}}>InsightIQ</strong>
+          Powered by <strong style={{color:'#4F46E5'}}>InsightIQ</strong> · Rentabuka Solutions
         </div>
       </div>
     </div>
@@ -217,7 +217,7 @@ export default function PublicSurveyPage({ params }: { params: { id: string } })
           {submitting ? 'Submitting...' : 'Submit Survey →'}
         </button>
         <div style={{textAlign:'center',marginTop:16,fontSize:12,color:'#B0B8C8'}}>
-          Powered by <strong style={{color:'#4F46E5'}}>InsightIQ</strong>
+          Powered by <strong style={{color:'#4F46E5'}}>InsightIQ</strong> · Rentabuka Solutions
         </div>
       </div>
     </div>

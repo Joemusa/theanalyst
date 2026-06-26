@@ -12,7 +12,7 @@ export default function SurveysPage() {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { window.location.href = '/login'; return }
-      const { data } = await supabase.from('surveys').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
+      const { data } = await supabase.from('surveys').select('id, title, status, response_count, created_at').eq('user_id', session.user.id).order('created_at', { ascending: false })
       setSurveys(data || [])
       setLoading(false)
     }

@@ -26,7 +26,7 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <div style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 40%, #4F46E5 100%)', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ color: 'white', fontSize: '20px', fontWeight: 700 }}>📊 InsightIQ</div>
+        <div style={{ color: 'white', fontSize: '20px', fontWeight: 700 }}><img src="/icon.svg" alt="InsightIQ" style={{width:28,height:28,borderRadius:6,marginRight:8}}/> InsightIQ</div>
         <div>
           <h1 style={{ fontSize: 40, fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16 }}>Turn survey<br />responses into<br /><span style={{ color: '#A5B4FC' }}>business gold</span></h1>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 16, lineHeight: 1.6 }}>AI-powered analytics that tells you exactly what your customers think — in plain English.</p>

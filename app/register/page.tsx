@@ -47,7 +47,7 @@ export default function RegisterPage() {
     <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <div style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 40%, #4F46E5 100%)', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '20px', fontWeight: 700 }}>
-          📊 InsightIQ
+          <img src="/icon.svg" alt="InsightIQ" style={{width:28,height:28,borderRadius:6,marginRight:8}}/> InsightIQ
         </div>
         <div>
           <h1 style={{ fontSize: 40, fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16 }}>Understand your<br />customers in<br /><span style={{ color: '#A5B4FC' }}>minutes, not months</span></h1>
